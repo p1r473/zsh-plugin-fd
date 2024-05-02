@@ -16,17 +16,21 @@ fi
  # @since Wednesday, 9/11/2019
  #
  ##
-fd () {
 
+# Check if fd is an alias and remove it to avoid conflicts
+if alias fd 2>/dev/null; then unalias fd; fi
+
+fd () {
 	if ! [ -x "$(command -v fzf)" ]; then >&2 echo "Please install fzf to use fd." && return 1; fi
 	if ! [ -x "$(command -v find)" ]; then >&2 echo "Requires find command." && return 1; fi
 
 	DEPTH=0
-
 	if [ -n "$1" ]; then
 		DEPTH="$1"
 	fi
-	DIR=`find -L * -maxdepth $DEPTH -type d -print 2> /dev/null | fzf --height=100%` \
+
+	# Using $(...) instead of backticks for command substitution for better readability and nesting
+	DIR=$(find -L * -maxdepth $DEPTH -type d -print 2> /dev/null | fzf --height=100%) \
 		&& cd "$DIR" || return 1
 
 	return 0
